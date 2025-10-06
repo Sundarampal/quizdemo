@@ -1,10 +1,7 @@
-
-import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'PlayerScreen.dart';
-// import 'package:flutter/cupertino.dart';
 
 class ResultScreen extends StatelessWidget {
   final int score;
@@ -13,14 +10,14 @@ class ResultScreen extends StatelessWidget {
   final String quizTitle;
   final String questionsUrl;
 
-  ResultScreen({
-    Key? key,
+  const ResultScreen({
+    super.key,
     required this.score,
     required this.total,
     required this.quizId,
     required this.quizTitle,
     required this.questionsUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +32,10 @@ class ResultScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 12),
-
-            // Full-width "Back to Home" button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Pop routes until the first one (StartScreen)
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 child: const Padding(
@@ -51,8 +45,6 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Full-width "Retry Quiz" button: replace this ResultScreen with a fresh PlayerScreen
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

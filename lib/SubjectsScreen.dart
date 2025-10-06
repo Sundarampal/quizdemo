@@ -6,23 +6,22 @@ import 'QuizzesScreen.dart';
 
 class SubjectsScreen extends StatelessWidget {
   final List<dynamic> subjects;
-  final List<dynamic> quizzesMath;
-  final List<dynamic> quizzesScience;
 
-  SubjectsScreen({
-    Key? key,
+  const SubjectsScreen({
+    super.key,
     required this.subjects,
-    required this.quizzesMath,
-    required this.quizzesScience,
-  }) : super(key: key);
+  });
 
-  void _openQuizzesFor(BuildContext context, String id, String name) {
-    final List<dynamic> list = id == 'math' ? quizzesMath : quizzesScience;
+  void _openQuizzesFor(
+      BuildContext context, String id, String name, String quizzesUrl) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            QuizzesScreen(subjectId: id, subjectName: name, quizzesList: list),
+        builder: (_) => QuizzesScreen(
+          subjectId: id,
+          subjectName: name,
+          quizzesUrl: quizzesUrl,
+        ),
       ),
     );
   }
@@ -31,7 +30,7 @@ class SubjectsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final subjectButtons = QuizUtilities.subjectWidgets(
       subjects,
-          (id, name) => _openQuizzesFor(context, id, name),
+          (id, name, quizzesUrl) => _openQuizzesFor(context, id, name, quizzesUrl),
     );
     return Scaffold(
       appBar: AppBar(title: const Text('Subjects')),

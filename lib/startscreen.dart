@@ -1,13 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'QuizUtilities.dart';
 import 'SubjectsScreen.dart';
-import 'main.dart' hide QuizUtilities;
 
 class StartScreen extends StatefulWidget {
+  const StartScreen({super.key});
   @override
   State<StartScreen> createState() => _StartScreenState();
 }
@@ -15,37 +13,39 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   List<dynamic> news = [];
   List<dynamic> subjects = [];
-  List<dynamic> quizzesMath = [];
-  List<dynamic> quizzesScience = [];
-  String notice = 'Loading...';
+  String notice = 'Loading news...';
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _loadNewsThenSubjects();
   }
 
-  // Fetch remote JSON; fall back to embedded strings if network fails.
-  Future<void> _loadInitialData() async {
+  Future<void> _loadNewsThenSubjects() async {
+    // Step 1: News
     final nRemote = await QuizUtilities.downloadJson(
-      'https://varanasi-software-junction.github.io/pictures-json/quizjson/news.json',
-    );
-    final sRemote = await QuizUtilities.downloadJson(
-      'https://varanasi-software-junction.github.io/pictures-json/quizjson/subjects.json',
-    );
-    final qmRemote = await QuizUtilities.downloadJson(
-      'https://varanasi-software-junction.github.io/pictures-json/quizjson/quizzes_math.json',
-    );
-    final qsRemote = await QuizUtilities.downloadJson(
-      'https://varanasi-software-junction.github.io/pictures-json/quizjson/quizzes_science.json',
+      'https://sundarampal.github.io/myjsonfiles/newspaper.json',
     );
 
+    if (!mounted) return;
     setState(() {
-      news = nRemote ?? json.decode(fallbackNewsJson);
-      subjects = sRemote ?? json.decode(fallbackSubjectsJson);
-      quizzesMath = qmRemote ?? json.decode(fallbackQuizzesMathJson);
-      quizzesScience = qsRemote ?? json.decode(fallbackQuizzesScienceJson);
-      notice = '';
+      news = nRemote is List ? nRemote : [];
+      notice = news.isEmpty ? 'Failed to load news.' : 'Loading subjects...';
+    });
+
+    // Step 2: Subjects (only after news finishes)
+    final sRemote = await QuizUtilities.downloadJson(
+      'https://sundarampal.github.io/myjsonfiles/subject1_2.json',
+    );
+
+    if (!mounted) return;
+    setState(() {
+      subjects = sRemote is List ? sRemote : [];
+      if (subjects.isEmpty) {
+        notice = 'Failed to load subjects.';
+      } else {
+        notice = ''; // ready
+      }
     });
   }
 
@@ -72,16 +72,13 @@ class _StartScreenState extends State<StartScreen> {
                   ...newsWidgets,
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () {
-                      // Navigate to Subjects screen, passing loaded lists
+                    onPressed: subjects.isEmpty
+                        ? null
+                        : () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => SubjectsScreen(
-                            subjects: subjects,
-                            quizzesMath: quizzesMath,
-                            quizzesScience: quizzesScience,
-                          ),
+                          builder: (_) => SubjectsScreen(subjects: subjects),
                         ),
                       );
                     },

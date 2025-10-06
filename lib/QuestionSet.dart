@@ -7,7 +7,6 @@ class QuestionSet {
 
   QuestionSet({required this.id, required this.title, required this.questions});
 
-  // Build QuestionSet from JSON Map
   factory QuestionSet.fromJson(Map<String, dynamic> j) {
     final qs = <QuizQuestion>[];
     if (j['questions'] is List) {

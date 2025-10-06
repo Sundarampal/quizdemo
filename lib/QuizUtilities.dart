@@ -1,22 +1,17 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class QuizUtilities {
-  // Try to fetch JSON from `url`. Return decoded JSON (Map/List) or null on failure.
   static Future<dynamic> downloadJson(String url) async {
     try {
       final resp = await http.get(Uri.parse(url));
       if (resp.statusCode == 200) return json.decode(resp.body);
-    } catch (_) {
-      // ignore network errors here; caller will use fallback
-    }
+    } catch (_) {}
     return null;
   }
 
-  // Build list of news cards (used on start screen).
   static List<Widget> newsWidgets(
       List<dynamic> newsJson,
       BuildContext context,
@@ -32,7 +27,6 @@ class QuizUtilities {
           trailing: TextButton(
             child: const Text('Details'),
             onPressed: () {
-              // show details in a simple dialog
               showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
@@ -53,16 +47,16 @@ class QuizUtilities {
     }).toList();
   }
 
-  // Build subject selection buttons
   static List<Widget> subjectWidgets(
       List<dynamic> subjectsJson,
-      void Function(String id, String name) onTap,
+      void Function(String id, String name, String quizzesUrl) onTap,
       ) {
     return subjectsJson.map<Widget>((s) {
       final id = s['id'] ?? '';
       final name = s['name'] ?? s['title'] ?? '';
+      final quizzesUrl = s['quizzes_url'] ?? s['quizzesUrl'] ?? '';
       return ElevatedButton(
-        onPressed: () => onTap(id, name),
+        onPressed: quizzesUrl.isEmpty ? null : () => onTap(id, name, quizzesUrl),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 14.0),
           child: Text(name, style: const TextStyle(fontSize: 16)),
@@ -71,7 +65,6 @@ class QuizUtilities {
     }).toList();
   }
 
-  // Build quiz cards (used on quizzes screen)
   static List<Widget> quizWidgets(
       List<dynamic> quizzesJson,
       void Function(String id, String title, String questionsUrl) onStart,
@@ -86,7 +79,9 @@ class QuizUtilities {
           title: Text(title),
           subtitle: Text(desc),
           trailing: ElevatedButton(
-            onPressed: () => onStart(id, title, questionsUrl),
+            onPressed: questionsUrl.isEmpty
+                ? null
+                : () => onStart(id, title, questionsUrl),
             child: const Text('Start'),
           ),
         ),
